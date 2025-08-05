@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+opencv-python
+insightface
+numpy
+faiss-cpu
+httpx
+pydantic
+asyncio
+supabase
+gunicorn
+python-dotenv
