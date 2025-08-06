@@ -11,3 +11,4 @@ asyncio
 supabase
 gunicorn
 python-dotenv
+deepface

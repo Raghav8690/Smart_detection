@@ -1,3 +1,5 @@
+'''
+
 from fastapi import APIRouter, HTTPException , BackgroundTasks,UploadFile,File
 import asyncio
 from services.process_faces import process_faces
@@ -9,8 +11,7 @@ router = APIRouter()
 executor = ThreadPoolExecutor(max_workers=4)
 
 
-
-@router.post("/process_image")
+@router.post("/")
 async def process_image(file: UploadFile = File(...)):
     try:
         image_bytes = await file.read()
@@ -23,6 +24,22 @@ async def process_image(file: UploadFile = File(...)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+'''
+
+# @router.post("/")
+# async def process_image(file: UploadFile = File(...)):
+#     try:
+#         image_bytes = await file.read()
+#         if not image_bytes:
+#             raise HTTPException(status_code=400, detail="No image provided")
+
+#         loop = asyncio.get_event_loop()
+#         result = await loop.run_in_executor(executor, process_faces, image_bytes)
+#         return result
+
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=str(e))
 
 
 
@@ -80,3 +97,29 @@ async def process_image(file: UploadFile = File(...)):
 #         pass
 
     
+
+
+
+    # ------------------ New ---------------------------
+
+from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File
+import asyncio
+from services.process_faces import process_faces
+from concurrent.futures import ThreadPoolExecutor
+
+router = APIRouter()
+executor = ThreadPoolExecutor(max_workers=4)
+
+@router.post("/")
+async def process_image(file: UploadFile = File(...)):
+    try:
+        image_bytes = await file.read()
+        if not image_bytes:
+            raise HTTPException(status_code=400, detail="No image provided")
+
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(executor, process_faces, image_bytes)
+        return result
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
