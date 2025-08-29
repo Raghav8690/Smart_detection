@@ -1,27 +1,91 @@
+# import cv2
+# import numpy as np
+# import insightface
+# from insightface.app import FaceAnalysis
+
+
+# app = FaceAnalysis(name='buffalo_l')
+# app.prepare(ctx_id=0, det_size=(640, 640)) 
+
+# async def face_extraction(img_bytes: bytes):
+#     try:
+#         img = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
+#         if img is None:
+#             print("Failed to decode image")
+#             return []
+            
+#         faces = app.get(img)
+#         results = []
+        
+#         for face in faces:
+#             box = face.bbox.astype(int)
+#             cropped_face = img[box[1]:box[3], box[0]:box[2]]
+#             embedding = face.embedding
+#             results.append((cropped_face, embedding))
+#         return results
+#     except Exception as e:
+#         print(f"Error in face extraction: {e}")
+#         return []
+
 import cv2
 import numpy as np
 import insightface
 from insightface.app import FaceAnalysis
 
+# Global app instance to avoid reinitializing
+app = None
 
-app = FaceAnalysis(name='buffalo_l')
-app.prepare(ctx_id=0, det_size=(640, 640)) 
+def get_face_app():
+    global app
+    if app is None:
+        try:
+            app = FaceAnalysis(name='buffalo_l')
+            app.prepare(ctx_id=0, det_size=(640, 640))
+        except Exception as e:
+            print(f"Error initializing face analysis: {e}")
+            return None
+    return app
 
-async def face_extraction(img_bytes: bytes):
+def face_extraction(img_bytes: bytes):
     try:
+        # Get face analysis app
+        face_app = get_face_app()
+        if face_app is None:
+            print("Face analysis app not available")
+            return []
+        
+        # Decode image
         img = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
         if img is None:
             print("Failed to decode image")
             return []
             
-        faces = app.get(img)
+        # Get faces
+        faces = face_app.get(img)
         results = []
         
         for face in faces:
-            box = face.bbox.astype(int)
-            cropped_face = img[box[1]:box[3], box[0]:box[2]]
-            embedding = face.embedding
-            results.append((cropped_face, embedding))
+            try:
+                # Extract bounding box and crop face
+                box = face.bbox.astype(int)
+                # Ensure coordinates are within image bounds
+                box[0] = max(0, box[0])
+                box[1] = max(0, box[1])
+                box[2] = min(img.shape[1], box[2])
+                box[3] = min(img.shape[0], box[3])
+                
+                cropped_face = img[box[1]:box[3], box[0]:box[2]]
+                
+                # Check if cropped face is valid
+                if cropped_face.size == 0:
+                    continue
+                    
+                embedding = face.embedding
+                results.append((cropped_face, embedding))
+            except Exception as e:
+                print(f"Error processing individual face: {e}")
+                continue
+                
         return results
     except Exception as e:
         print(f"Error in face extraction: {e}")

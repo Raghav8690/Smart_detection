@@ -102,7 +102,7 @@ async def process_image(file: UploadFile = File(...)):
 
     # ------------------ New ---------------------------
 
-from fastapi import APIRouter, HTTPException, BackgroundTasks, UploadFile, File
+from fastapi import APIRouter, HTTPException, UploadFile, File
 import asyncio
 from services.process_faces import process_faces
 from concurrent.futures import ThreadPoolExecutor
@@ -110,9 +110,13 @@ from concurrent.futures import ThreadPoolExecutor
 router = APIRouter()
 executor = ThreadPoolExecutor(max_workers=4)
 
-@router.post("/")
+@router.post("/upload")  # Changed from "/process_image" to avoid conflict
 async def process_image(file: UploadFile = File(...)):
     try:
+        # Validate file type
+        if not file.content_type or not file.content_type.startswith('image/'):
+            raise HTTPException(status_code=400, detail="File must be an image")
+        
         image_bytes = await file.read()
         if not image_bytes:
             raise HTTPException(status_code=400, detail="No image provided")
@@ -121,5 +125,7 @@ async def process_image(file: UploadFile = File(...)):
         result = await loop.run_in_executor(executor, process_faces, image_bytes)
         return result
 
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
