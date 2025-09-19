@@ -70,23 +70,23 @@ async def process_image(file: UploadFile = File(...)):
 #         for face, embedding in zip(faces, embeddings):
 #             matched_id = face_matcher.match(embedding)
 #             if matched_id:
-#                 response = supabase.table('Visitors').select('visit_count').eq('id', matched_id).execute().data
+#                 response = supabase.table('visitors').select('visit_count').eq('id', matched_id).execute().data
 #                 current_count = response[0]['visit_count']
-#                 supabase.table("Visitors").update(
+#                 supabase.table("visitors").update(
 #                     {'visit_count' : current_count+1}
 #                 ).eq("id", matched_id).execute()
 
-#                 response = supabase.table('Visitors').select('first_seen, last_seen').eq('id', matched_id).execute()
+#                 response = supabase.table('visitors').select('first_seen, last_seen').eq('id', matched_id).execute()
 #                 first_seen,last_seen = response.data[0]["first_seens"], response.data[0]["last_seen"]
 
 #                 duration = last_seen-first_seen
 
-#                 supabase.table("Sessions").update(
+#                 supabase.table("session").update(
 #                     {"last_seen": datetime.datetime.now().isoformat()
 #                      "duration": duration}
 #                 )
 
-#                 supabase.table("Sessions").insert(
+#                 supabase.table("session").insert(
 #                     {
 #                         'visitor_id':matched_id
 #                     }

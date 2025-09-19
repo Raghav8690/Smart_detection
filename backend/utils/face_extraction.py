@@ -53,18 +53,20 @@ def face_extraction(img_bytes: bytes):
         if face_app is None:
             print("Face analysis app not available")
             return []
-        
+
         # Decode image
         img = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
         if img is None:
             print("Failed to decode image")
             return []
-            
+        print(f"Image decoded successfully. Shape: {img.shape}, Dtype: {img.dtype}")
+
         # Get faces
         faces = face_app.get(img)
+        print(f"Number of faces detected: {len(faces)}")
         results = []
-        
-        for face in faces:
+
+        for idx, face in enumerate(faces):
             try:
                 # Extract bounding box and crop face
                 box = face.bbox.astype(int)
@@ -73,19 +75,22 @@ def face_extraction(img_bytes: bytes):
                 box[1] = max(0, box[1])
                 box[2] = min(img.shape[1], box[2])
                 box[3] = min(img.shape[0], box[3])
-                
+
                 cropped_face = img[box[1]:box[3], box[0]:box[2]]
-                
+
                 # Check if cropped face is valid
                 if cropped_face.size == 0:
+                    print(f"Face {idx}: Cropped face is empty, skipping.")
                     continue
-                    
+
                 embedding = face.embedding
+                print(f"Face {idx}: Cropped face shape: {cropped_face.shape}, Embedding shape: {embedding.shape}")
                 results.append((cropped_face, embedding))
             except Exception as e:
-                print(f"Error processing individual face: {e}")
+                print(f"Error processing individual face {idx}: {e}")
                 continue
-                
+
+        print(f"Total faces processed and returned: {len(results)}")
         return results
     except Exception as e:
         print(f"Error in face extraction: {e}")

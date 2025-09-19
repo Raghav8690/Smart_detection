@@ -6,7 +6,6 @@
 #     image_path = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
 
 
-
 #     net = cv2.dnn.readNetFromCaffe('Backend2/ml_models/age_prediction.prototxt', 'Backend2/ml_models/model.caffemodel')
 
 #     blob = cv2.dnn.blobFromImage(image_path, scalefactor=1.0, size=(224, 224), mean=(104, 117, 123))
@@ -36,13 +35,14 @@
 #         age_range = "80-90"
 #     else:
 #         age_range = "90+"
-    
-#     return age_range 
+
+#     return age_range
 
 
 import numpy as np
 import cv2
 import os
+
 
 async def predict_age(img_bytes):
     try:
@@ -50,36 +50,44 @@ async def predict_age(img_bytes):
         image = cv2.imdecode(np.frombuffer(img_bytes, np.uint8), cv2.IMREAD_COLOR)
         if image is None:
             return "Unknown"
-        
         # Check if model files exist
-        prototxt_path = 'ml_models/age_prediction.prototxt'
-        model_path = 'ml_models/model.caffemodel'
-        
+        prototxt_path = "ml_models/age_prediction.prototxt"
+        model_path = "ml_models/model.caffemodel"
+
         if not os.path.exists(prototxt_path) or not os.path.exists(model_path):
             print(f"Model files not found: {prototxt_path}, {model_path}")
             return "Unknown"
-        
+
         # Load the age prediction model
         net = cv2.dnn.readNetFromCaffe(prototxt_path, model_path)
-        
+
         # Prepare the image
-        blob = cv2.dnn.blobFromImage(image, scalefactor=1.0, size=(224, 224), mean=(104, 117, 123))
+        blob = cv2.dnn.blobFromImage(
+            image, scalefactor=1.0, size=(224, 224), mean=(104, 117, 123)
+        )
         net.setInput(blob)
         output = net.forward()
-        
         # Get prediction
         bucket_idx = output[0].argmax()
-        
+        print("bucket_idx", bucket_idx)
         # Map to age ranges
         age_ranges = [
-            "0-2", "4-6", "8-12", "15-20", "25-32", "38-43", "48-53", "60-100"
+            "0-2",
+            "4-6",
+            "8-12",
+            "15-20",
+            "25-32",
+            "38-43",
+            "48-53",
+            "60-100",
         ]
-        
+
         if bucket_idx < len(age_ranges):
             return age_ranges[bucket_idx]
         else:
             return "Unknown"
-            
+
     except Exception as e:
         print(f"Error predicting age: {e}")
         return "Unknown"
+
