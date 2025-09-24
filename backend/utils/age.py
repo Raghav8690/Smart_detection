@@ -69,23 +69,33 @@ async def predict_age(img_bytes):
         output = net.forward()
         # Get prediction
         bucket_idx = output[0].argmax()
-        print("bucket_idx", bucket_idx)
+        # print("bucket_idx", bucket_idx)
         # Map to age ranges
-        age_ranges = [
-            "0-2",
-            "4-6",
-            "8-12",
-            "15-20",
-            "25-32",
-            "38-43",
-            "48-53",
-            "60-100",
-        ]
-
-        if bucket_idx < len(age_ranges):
-            return age_ranges[bucket_idx]
+        age = bucket_idx
+        age_range = age
+        if 0<age<10:
+            age_range = "0-10"
+        elif 10<age<20:
+            age_range = "10-20"
+        elif 20<age<30:
+            age_range = "20-30"
+        elif 30<age<40:
+            age_range = "30-40"
+        elif 40<age<50:
+            age_range = "40-50"
+        elif 50<age<60:
+            age_range = "50-60"
+        elif 60<age<70:
+            age_range = "60-70"
+        elif 70<age<80:
+            age_range = "70-80"
+        elif 80<age<90:
+            age_range = "80-90"
         else:
-            return "Unknown"
+            age_range = "90+"
+
+
+        return age_range
 
     except Exception as e:
         print(f"Error predicting age: {e}")
