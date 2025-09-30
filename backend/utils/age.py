@@ -68,7 +68,7 @@ async def predict_age(img_bytes):
         net.setInput(blob)
         output = net.forward()
         # Get prediction
-        bucket_idx = output[0].argmax()
+        bucket_idx = np.argmax(output[0])
         # print("bucket_idx", bucket_idx)
         # Map to age ranges
         age = bucket_idx

@@ -294,7 +294,7 @@ def process_faces(image_bytes: bytes):
                                     "visitor_id": matched_id,
                                     "first_seen": now,
                                     "last_seen": now,
-                                    "duration": 0,
+                                    "duration": diff_sec,
                                 }
                             ).execute()
                     else:

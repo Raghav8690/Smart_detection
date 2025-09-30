@@ -77,15 +77,17 @@ def face_extraction(img_bytes: bytes):
                 box[3] = min(img.shape[0], box[3])
 
                 cropped_face = img[box[1]:box[3], box[0]:box[2]]
+                resized_face = []
+                for i in cropped_face:
+                    resized_face = resized_face.append(cv2.resize(cropped_face, (224, 224), interpolation=cv2.INTER_LANCZOS4))
 
-                # Check if cropped face is valid
-                if cropped_face.size == 0:
+                if resized_face.size == 0:
                     print(f"Face {idx}: Cropped face is empty, skipping.")
                     continue
 
                 embedding = face.embedding
-                print(f"Face {idx}: Cropped face shape: {cropped_face.shape}, Embedding shape: {embedding.shape}")
-                results.append((cropped_face, embedding))
+                print(f"Face {idx}: Cropped face shape: {resized_face.shape}, Embedding shape: {embedding.shape}")
+                results.append((resized_face, embedding))
             except Exception as e:
                 print(f"Error processing individual face {idx}: {e}")
                 continue
