@@ -77,9 +77,8 @@ def face_extraction(img_bytes: bytes):
                 box[3] = min(img.shape[0], box[3])
 
                 cropped_face = img[box[1]:box[3], box[0]:box[2]]
-                resized_face = []
-                for i in cropped_face:
-                    resized_face = resized_face.append(cv2.resize(cropped_face, (224, 224), interpolation=cv2.INTER_LANCZOS4))
+            
+                resized_face = cv2.resize(cropped_face, (224, 224), interpolation=cv2.INTER_LANCZOS4)
 
                 if resized_face.size == 0:
                     print(f"Face {idx}: Cropped face is empty, skipping.")
